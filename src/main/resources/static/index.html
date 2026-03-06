@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICD-10 Diagnosis Navigator</title>
+    
+    <!-- Google Fonts: Medical professional look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #0f7fff;
+            --primary-dark: #0a5cc9;
+            --accent: #00d4ff;
+            --success: #00e676;
+            --warning: #ffab00;
+            --danger: #ff3d00;
+            --bg-dark: #0a1428;
+            --bg-darker: #030c1a;
+            --surface: rgba(15, 127, 255, 0.05);
+            --surface-light: rgba(15, 127, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: #b0baf0;
+            --border: rgba(15, 127, 255, 0.2);
+            --glow: rgba(0, 212, 255, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-darker) 0%, #0f1e35 25%, #0a2847 50%, var(--bg-darker) 100%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Animated background blobs */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::before {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #0f7fff 0%, transparent 70%);
+            top: -200px;
+            right: -200px;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        body::after {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #00d4ff 0%, transparent 70%);
+            bottom: -100px;
+            left: -100px;
+            animation: float 25s infinite ease-in-out reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(30px, -30px); }
+        }
+
+        /* Navigation */
+        .navbar {
+            position: relative;
+            z-index: 10;
+            padding: 20px 0;
+            backdrop-filter: blur(10px);
+            background: rgba(10, 20, 40, 0.6);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            font-family: 'Poppins', sans-serif;
+            font-size: 26px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .navbar-brand i {
+            font-size: 28px;
+            -webkit-text-fill-color: var(--primary);
+        }
+
+        .nav-status {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            background: var(--surface);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            animation: pulse-glow 2s infinite;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.7); }
+            50% { box-shadow: 0 0 0 6px rgba(0, 230, 118, 0); }
+        }
+
+        /* Main Container */
+        .main-container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Header Section */
+        .header-section {
+            margin-bottom: 50px;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: -1px;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .header-subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        /* Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Glassmorphism Card */
+        .glass-card {
+            background: rgba(15, 20, 40, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 0 60px rgba(15, 127, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                135deg,
+                rgba(0, 212, 255, 0.1) 0%,
+                transparent 50%,
+                rgba(15, 127, 255, 0.05) 100%
+            );
+            animation: shimmer 8s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(100px, 100px) rotate(45deg); }
+        }
+
+        .glass-card-header {
+            font-family: 'Poppins', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .glass-card-header i {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 28px;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .form-input::placeholder {
+            color: rgba(176, 186, 240, 0.5);
+        }
+
+        .form-input:focus {
+            outline: none;
+            background: rgba(15, 127, 255, 0.1);
+            border-color: var(--accent);
+            box-shadow: 
+                0 0 0 3px rgba(0, 212, 255, 0.15),
+                inset 0 0 20px rgba(0, 212, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .form-input::selection {
+            background: rgba(0, 212, 255, 0.3);
+        }
+
+        /* Button */
+        .btn-search {
+            width: 100%;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(15, 127, 255, 0.4);
+            z-index: 2;
+        }
+
+        .btn-search::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: 100%; }
+        }
+
+        .btn-search:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 6px 25px rgba(15, 127, 255, 0.5),
+                0 0 40px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-search:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-search:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Messages */
+        .message {
+            padding: 14px 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+            position: relative;
+            z-index: 1;
+            border: 1px solid;
+            backdrop-filter: blur(10px);
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .error-message {
+            background: rgba(255, 61, 0, 0.1);
+            border-color: rgba(255, 61, 0, 0.3);
+            color: #ff8a65;
+        }
+
+        .success-message {
+            background: rgba(0, 230, 118, 0.1);
+            border-color: rgba(0, 230, 118, 0.3);
+            color: #00e676;
+        }
+
+        .message i {
+            margin-right: 8px;
+        }
+
+        /* Results Section */
+        .results-section {
+            position: relative;
+            z-index: 1;
+        }
+
+        .results-header {
+            font-family: 'Poppins', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid;
+            border-image: linear-gradient(90deg, var(--primary), var(--accent)) 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .results-count {
+            font-size: 12px;
+            background: var(--surface);
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        /* Result Card */
+        .result-card {
+            background: rgba(15, 20, 40, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .result-card:nth-child(1) { animation-delay: 0s; }
+        .result-card:nth-child(2) { animation-delay: 0.1s; }
+        .result-card:nth-child(3) { animation-delay: 0.2s; }
+        .result-card:nth-child(4) { animation-delay: 0.3s; }
+        .result-card:nth-child(5) { animation-delay: 0.4s; }
+
+        .result-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--primary), var(--accent));
+        }
+
+        .result-card:hover {
+            background: rgba(15, 127, 255, 0.08);
+            border-color: var(--accent);
+            transform: translateX(8px);
+            box-shadow: 
+                0 8px 32px rgba(0, 212, 255, 0.15),
+                inset 0 0 20px rgba(0, 212, 255, 0.05);
+        }
+
+        .code {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .description {
+            color: var(--text-primary);
+            font-size: 15px;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .detail-description {
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        .relevance-score {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, rgba(0, 230, 118, 0.2), rgba(15, 127, 255, 0.2));
+            color: var(--success);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid rgba(0, 230, 118, 0.3);
+        }
+
+        .relevance-score i {
+            font-size: 10px;
+        }
+
+        /* Info Cards */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .info-card {
+            background: rgba(15, 20, 40, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.8s ease-out 0.3s both;
+        }
+
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent), transparent);
+        }
+
+        .info-card h5 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            margin-bottom: 15px;
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-card h5 i {
+            color: var(--primary);
+            font-size: 18px;
+        }
+
+        .info-card ul {
+            list-style: none;
+        }
+
+        .info-card li {
+            padding: 8px 0;
+            color: var(--text-secondary);
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+
+        .info-card li:last-child {
+            border-bottom: none;
+        }
+
+        .info-card li::before {
+            content: '▸ ';
+            color: var(--accent);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .info-card li:hover {
+            color: var(--text-primary);
+            padding-left: 8px;
+        }
+
+        /* Footer */
+        .footer {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 30px 20px;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            margin-top: 60px;
+        }
+
+        .footer a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer a:hover {
+            color: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-title {
+                font-size: 32px;
+            }
+
+            .navbar-brand {
+                font-size: 20px;
+            }
+
+            .glass-card {
+                padding: 25px;
+            }
+
+            .main-container {
+                padding: 20px 15px;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-brand">
+                <i class="fas fa-stethoscope"></i>
+                ICD-10 Navigator
+            </div>
+            <div class="nav-status">
+                <span class="status-dot"></span>
+                <span>System Active</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header-section">
+            <h1 class="header-title">Medical Code Discovery</h1>
+            <p class="header-subtitle">Intelligent ICD-10 diagnosis code search and classification</p>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+            <!-- Search Card -->
+            <div class="glass-card">
+                <div class="glass-card-header">
+                    <i class="fas fa-magnifying-glass"></i>
+                    Search Diagnosis Codes
+                </div>
+
+                <!-- Messages -->
+                <div class="error-message message" id="errorMessage">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="errorText"></span>
+                </div>
+                <div class="success-message message" id="successMessage">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="successText"></span>
+                </div>
+
+                <!-- Form -->
+                <form id="searchForm">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-stethoscope"></i> Diagnosis
+                        </label>
+                        <input 
+                            type="text" 
+                            class="form-input" 
+                            id="diagnosisInput" 
+                            placeholder="e.g., diabetes, cholera, hypertension"
+                            autocomplete="off"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-list-ol"></i> Results Limit
+                        </label>
+                        <input 
+                            type="number" 
+                            class="form-input" 
+                            id="limitInput" 
+                            value="5" 
+                            min="1" 
+                            max="20"
+                        >
+                    </div>
+
+                    <button type="submit" class="btn-search">
+                        <i class="fas fa-search"></i> Search ICD-10 Codes
+                    </button>
+                </form>
+
+                <!-- Loading -->
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p class="loading-text">Searching medical database...</p>
+                </div>
+
+                <!-- Results -->
+                <div id="resultsContainer" style="display:none;">
+                    <div class="results-header">
+                        <i class="fas fa-list-check"></i>
+                        Results
+                        <span class="results-count" id="resultsCount">0</span>
+                    </div>
+                    <div id="results"></div>
+                </div>
+            </div>
+
+            <!-- Info Panel -->
+            <div class="info-grid">
+                <div class="info-card">
+                    <h5><i class="fas fa-lightbulb"></i> How to Use</h5>
+                    <ul>
+                        <li>Enter a diagnosis description</li>
+                        <li>Set desired result limit</li>
+                        <li>Click search button</li>
+                        <li>View matching ICD-10 codes</li>
+                        <li>Copy codes as needed</li>
+                    </ul>
+                </div>
+
+                <div class="info-card">
+                    <h5><i class="fas fa-book"></i> Example Searches</h5>
+                    <ul>
+                        <li>diabetes mellitus</li>
+                        <li>cholera infection</li>
+                        <li>paratyphoid fever</li>
+                        <li>hypertension</li>
+                        <li>respiratory infection</li>
+                    </ul>
+                </div>
+
+                <div class="info-card">
+                    <h5><i class="fas fa-bolt"></i> Performance</h5>
+                    <ul>
+                        <li>First query: 1-2 seconds</li>
+                        <li>Cached queries: ~50ms</li>
+                        <li>Supports up to 20 results</li>
+                        <li>Real-time search indexing</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>🏥 ICD-10 Diagnosis Navigator | Medical Code Classification System</p>
+        <p style="margin-top: 10px; opacity: 0.6;">Powered by Spring Boot Backend • Built with Modern Web Technologies</p>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        const API_BASE = 'http://localhost:8080/api';
+
+        // DOM Elements
+        const searchForm = document.getElementById('searchForm');
+        const diagnosisInput = document.getElementById('diagnosisInput');
+        const limitInput = document.getElementById('limitInput');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const results = document.getElementById('results');
+        const loading = document.getElementById('loading');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+        const successMessage = document.getElementById('successMessage');
+        const successText = document.getElementById('successText');
+        const resultsCount = document.getElementById('resultsCount');
+        const btn = document.querySelector('.btn-search');
+
+        // Event Listeners
+        searchForm.addEventListener('submit', handleSearch);
+        diagnosisInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !loading.style.display.includes('block')) handleSearch(e);
+        });
+
+        /**
+         * Handle search
+         */
+        async function handleSearch(event) {
+            if (event) event.preventDefault();
+
+            const diagnosis = diagnosisInput.value.trim();
+            const limit = parseInt(limitInput.value) || 5;
+
+            if (!diagnosis) {
+                showError('Please enter a diagnosis');
+                return;
+            }
+
+            if (limit < 1 || limit > 20) {
+                showError('Limit must be between 1 and 20');
+                return;
+            }
+
+            clearMessages();
+            clearResults();
+            loading.style.display = 'block';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE}/diagnosis/suggest`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ diagnosis, resultLimit: limit })
+                });
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.success && data.suggestions?.length > 0) {
+                    displayResults(data);
+                    showSuccess(`Found ${data.suggestions.length} codes (${data.responseTime}ms)`);
+                } else {
+                    showError(data.message || 'No codes found');
+                }
+
+            } catch (err) {
+                showError(`Error: ${err.message}. Backend running on port 8080?`);
+            } finally {
+                loading.style.display = 'none';
+                btn.disabled = false;
+            }
+        }
+
+        /**
+         * Display results
+         */
+        function displayResults(data) {
+            resultsContainer.style.display = 'block';
+            resultsCount.textContent = data.suggestions.length;
+
+            const html = data.suggestions.map(code => `
+                <div class="result-card">
+                    <div class="code">${code.code}</div>
+                    <div class="description">${code.description}</div>
+                    ${code.detailDescription ? `<div class="detail-description">${code.detailDescription}</div>` : ''}
+                    <div style="margin-top: 10px;">
+                        <span class="relevance-score">
+                            <i class="fas fa-star"></i>
+                            ${(code.relevanceScore * 100).toFixed(0)}%
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+
+            results.innerHTML = html;
+        }
+
+        function showError(msg) {
+            errorText.textContent = msg;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+        }
+
+        function showSuccess(msg) {
+            successText.textContent = msg;
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+        }
+
+        function clearMessages() {
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+        }
+
+        function clearResults() {
+            results.innerHTML = '';
+            resultsContainer.style.display = 'none';
+        }
+
+        // Initial focus
+        diagnosisInput.focus();
+    </script>
+</body>
+</html>
