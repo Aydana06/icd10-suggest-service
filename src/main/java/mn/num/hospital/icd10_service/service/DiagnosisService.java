@@ -1,9 +1,9 @@
 package mn.num.hospital.icd10_service.service;
 
 import lombok.extern.slf4j.Slf4j;
+import mn.num.hospital.icd10_service.domain.ICD10Code;
 import mn.num.hospital.icd10_service.dto.DiagnosisResponse;
 import mn.num.hospital.icd10_service.dto.ICD10CodeDTO;
-import mn.num.hospital.icd10_service.entity.ICD10Code;
 import mn.num.hospital.icd10_service.repo.ICD10CodeRepository;
 import org.springframework.stereotype.Service;
 
@@ -115,7 +115,7 @@ public class DiagnosisService {
 
                 repository.save(entity);
 
-                log.debug("Код хадгалсан: {} - {}", entity.getCode(), entity.getDescription());
+                log.debug("Код хадгалсан: {} - {}", entity.getCode(), entity.getName());
             }
         }
     }
@@ -153,8 +153,8 @@ public class DiagnosisService {
 
         ICD10CodeDTO dto = new ICD10CodeDTO();
         dto.setCode(code.getCode());
-        dto.setDescription(code.getDescription());
-        dto.setDetailDescription(code.getDetailDescription());
+        dto.setName(code.getName());
+        dto.setDetail(code.getDetail());
         dto.setCategory(code.getCategory());
         dto.setRelevanceScore(code.getRelevanceScore());
 
@@ -168,8 +168,8 @@ public class DiagnosisService {
 
         ICD10Code code = new ICD10Code();
         code.setCode(dto.getCode());
-        code.setDescription(dto.getDescription());
-        code.setDetailDescription(dto.getDetailDescription());
+        code.setName(dto.getName());
+        code.setDetail(dto.getDetail());
         code.setCategory(dto.getCategory());
         code.setRelevanceScore(dto.getRelevanceScore());
         code.setCreatedAt(LocalDateTime.now());
@@ -217,15 +217,15 @@ public class DiagnosisService {
      * Helper method
      */
     private ICD10Code createCode(String code,
-                                 String description,
+                                 String name,
                                  String detail,
                                  String category,
                                  double score) {
 
         ICD10Code icd = new ICD10Code();
         icd.setCode(code);
-        icd.setDescription(description);
-        icd.setDetailDescription(detail);
+        icd.setName(name);
+        icd.setDetail(detail);
         icd.setCategory(category);
         icd.setRelevanceScore(score);
         icd.setCreatedAt(LocalDateTime.now());

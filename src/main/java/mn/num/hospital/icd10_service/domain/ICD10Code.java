@@ -1,4 +1,4 @@
-package mn.num.hospital.icd10_service.entity;
+package mn.num.hospital.icd10_service.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -20,11 +20,11 @@ public class ICD10Code {
     private String code;
     
     @Column(nullable = false, length = 500)
-    private String description;
+    private String name;
     
     @Column(length = 1000)
-    private String detailDescription;
-    
+    private String detail;
+   
     @Column(length = 100)
     private String category;
     

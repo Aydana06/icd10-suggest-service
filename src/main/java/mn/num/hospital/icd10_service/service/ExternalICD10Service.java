@@ -100,7 +100,7 @@ public class ExternalICD10Service {
 
             if (isMatch(dto, diagnosis)) {
                 results.add(dto);
-                log.debug("Matched code: {} - {}", dto.getCode(), dto.getDescription());
+                log.debug("Matched code: {} - {}", dto.getCode(), dto.getName());
             }
         }
 
@@ -117,16 +117,17 @@ public class ExternalICD10Service {
         try {
 
             String code = getText(item, "code");
-            String description = getText(item, "description");
+            String name = getText(item, "name");
+            String detail = getText(item, "detail");
 
-            if (code.isEmpty() || description.isEmpty()) {
+            if (code.isEmpty() || name.isEmpty()) {
                 return null;
             }
 
             ICD10CodeDTO dto = new ICD10CodeDTO();
             dto.setCode(code);
-            dto.setDescription(description);
-            dto.setDetailDescription(description);
+            dto.setName(name);
+            dto.setDetail(detail);
             dto.setCategory("External API");
             dto.setRelevanceScore(DEFAULT_RELEVANCE);
 
@@ -153,7 +154,7 @@ public class ExternalICD10Service {
 
         String keyword = diagnosis.toLowerCase();
 
-        return dto.getDescription().toLowerCase().contains(keyword) ||
+        return dto.getName().toLowerCase().contains(keyword) ||
                dto.getCode().toLowerCase().contains(keyword);
     }
 }

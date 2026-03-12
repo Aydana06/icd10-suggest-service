@@ -902,8 +902,12 @@
             const html = data.suggestions.map(code => `
                 <div class="result-card">
                     <div class="code">${code.code}</div>
-                    <div class="description">${code.description}</div>
-                    ${code.detailDescription ? `<div class="detail-description">${code.detailDescription}</div>` : ''}
+                    <div class="description">${code.name}</div>
+					${code.detail !== null && code.detail !== undefined 
+					    ? `<div class="detail-description">${code.detail}</div>` 
+					    : ''
+					}
+              
                     <div style="margin-top: 10px;">
                         <span class="relevance-score">
                             <i class="fas fa-star"></i>
@@ -915,6 +919,11 @@
 
             results.innerHTML = html;
         }
+		
+		// Browser console-д
+		document.querySelectorAll('.detail-description').forEach(el => {
+		    console.log(`"${el.textContent}"`, el.offsetHeight);
+		});
 
         function showError(msg) {
             errorText.textContent = msg;

@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ICD10CodeDTO {
     private String code;
-    private String description;
-    private String detailDescription;
+    private String name;
+    private String detail;
     private String category;
     private Double relevanceScore;
 }
