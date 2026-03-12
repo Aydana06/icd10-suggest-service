@@ -124,7 +124,7 @@ WHERE table_name = 'ICD10_CODES';
 ### ICD-10 Data Source
 
 ```
-URL: https://raw.githubusercontent.com/smog1210/2022-ICD-10-CM-JSON/refs/heads/main/icd10cm_codes_2022-2.json
+URL: http://localhost:8082/api/icd10
 Method: GET
 Response: JSON array of codes
 Codes: 69,000+
