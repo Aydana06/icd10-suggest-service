@@ -51,7 +51,7 @@ public class DiagnosisService {
 
             response.setSuggestions(suggestions);
             response.setSuccess(true);
-            response.setMessage(suggestions.size() + " кодын санал олгосон");
+            response.setMessage(suggestions.size() + " код санал болгосон");
 
         } catch (Exception e) {
 
@@ -185,32 +185,6 @@ public class DiagnosisService {
         if (repository.count() > 0) {
             return;
         }
-
-        List<ICD10Code> samples = List.of(
-                createCode("E11.9",
-                        "Type 2 diabetes mellitus without complications",
-                        "Хүний 2-р төрлийн сахар цээсийн эмгэг",
-                        "Endocrine", 0.95),
-
-                createCode("K21.9",
-                        "Unspecified reflux esophagitis",
-                        "Цөөхөн мэдэгдэхүүлэх хоолойн үрэвсэл",
-                        "Gastrointestinal", 0.92),
-
-                createCode("J06.9",
-                        "Acute upper respiratory infection, unspecified",
-                        "Үл нарийвчлалтай хурц дээд амьсгалын инфекц",
-                        "Respiratory", 0.88),
-
-                createCode("I10",
-                        "Essential (primary) hypertension",
-                        "Үндсэн (нэгдэгч) цусны дүүргэл",
-                        "Cardiovascular", 0.90)
-        );
-
-        repository.saveAll(samples);
-
-        log.info("{} sample ICD10 codes хадгалагдсан", samples.size());
     }
 
     /**
