@@ -13,9 +13,21 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ICD10ServiceApplication implements CommandLineRunner {
     
-    public static void main(String[] args) {
-        SpringApplication.run(ICD10ServiceApplication.class, args);
-    }
+	public static void main(String[] args) {
+
+	    // ❗ GUI ашиглахын тулд
+	    System.setProperty("java.awt.headless", "false");
+
+	    var context = SpringApplication.run(ICD10ServiceApplication.class, args);
+
+	    var service = context.getBean(
+	        mn.num.hospital.icd10_service.service.DiagnosisService.class
+	    );
+
+	    javax.swing.SwingUtilities.invokeLater(() -> {
+	        new mn.num.hospital.icd10_service.ui.DiagnosisSearchUI(service);
+	    });
+	}
     
     @Bean
     public RestTemplate restTemplate() {

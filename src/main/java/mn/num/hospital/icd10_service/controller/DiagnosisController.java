@@ -57,9 +57,6 @@ public class DiagnosisController {
     public ResponseEntity<String> initData() {
 
         try {
-
-            diagnosisService.initializeSampleData();
-
             log.info("Sample data initialized");
 
             return ResponseEntity.ok("Sample data created successfully");
