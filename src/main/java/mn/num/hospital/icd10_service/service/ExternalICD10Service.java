@@ -60,7 +60,7 @@ public class ExternalICD10Service {
         }
     }
     
-    // Бүх кодыг татах (шүүлтгүй) — DB seed хийхэд ашиглана 
+    // Бүх кодыг татах (шүүлтгүй) - DB seed хийхэд ашиглана 
     public List<ICD10CodeDTO> fetchAllCodes() {
         log.info("Fetching ALL codes from external API...");
         try {

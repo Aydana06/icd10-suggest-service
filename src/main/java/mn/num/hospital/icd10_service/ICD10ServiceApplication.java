@@ -8,7 +8,6 @@ import org.springframework.web.client.RestTemplate;
 
 import lombok.extern.slf4j.Slf4j;
 import mn.num.hospital.icd10_service.repo.ChapterRepository;
-import mn.num.hospital.icd10_service.repo.ICD10CodeRepository;
 import mn.num.hospital.icd10_service.service.DiagnosisService;
 import mn.num.hospital.icd10_service.ui.DiagnosisSearchUI;
 
@@ -21,7 +20,7 @@ public class ICD10ServiceApplication {
 
         var context = SpringApplication.run(ICD10ServiceApplication.class, args);
 
-        var service     = context.getBean(DiagnosisService.class);
+        var service = context.getBean(DiagnosisService.class);
         var chapterRepo = context.getBean(ChapterRepository.class);
 
         log.info("ICD-10 Diagnosis Service эхэллээ...");

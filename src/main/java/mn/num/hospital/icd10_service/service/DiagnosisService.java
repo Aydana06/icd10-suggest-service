@@ -199,8 +199,8 @@ public class DiagnosisService {
         String keyword = diagnosis.toLowerCase();
         String name = dto.getName().toLowerCase();
         double score = 0;
-        if (name.equals(keyword))    score += 1.0;
-        if (name.contains(keyword))  score += 0.6;
+        if (name.equals(keyword)) score += 1.0;
+        if (name.contains(keyword)) score += 0.6;
         for (String word : Arrays.stream(keyword.split(" ")).distinct().toList()) {
             if (name.contains(word)) score += 0.2;
         }
