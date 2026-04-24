@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DiagnosisRequest {
     private String diagnosis;
-    private int resultLimit = 10;
+    private int resultLimit;
 }

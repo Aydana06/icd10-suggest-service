@@ -47,8 +47,8 @@ public class ICD10Code {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
     
-	@ManyToOne(optional=false)
-	@JoinColumn(name="subcategory_id", nullable=false)
+	@ManyToOne(optional=true)
+	@JoinColumn(name="subcategory_id", nullable=true)
 	private Subcategory subcategory;	
 	
     @Column(nullable = false, updatable = false)

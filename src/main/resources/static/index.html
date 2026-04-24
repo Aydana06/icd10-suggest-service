@@ -1,241 +1,706 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="mn">
-<head>
-<meta charset="UTF-8">
-<title>Онош хайх</title>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Онош хайх</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        background: rgba(0, 0, 0, 0.4);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
 
-<style>
-body {
-    font-family: Arial, sans-serif;
-    background: #f5f5f5;
-}
+      .modal {
+        background: #fff;
+        border-radius: 12px;
+        width: 860px;
+        max-width: 98vw;
+        padding: 24px;
+        display: flex;
+        gap: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+      }
 
-/* Modal */
-.modal {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.4);
-}
+      /* LEFT */
+      .left {
+        width: 260px;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .left h3 {
+        font-size: 16px;
+        color: #1a1d23;
+      }
 
-.modal-content {
-    width: 800px;
-    background: white;
-    border-radius: 10px;
-    padding: 20px;
-    display: flex;
-    gap: 20px;
-}
+      .field label {
+        display: block;
+        font-size: 12px;
+        color: #555;
+        margin-bottom: 4px;
+      }
+      .field select,
+      .field input[type="text"] {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid #dde1e7;
+        border-radius: 6px;
+        font-size: 13px;
+        color: #1a1d23;
+        background: #fff;
+        appearance: none;
+      }
+      .field select:focus,
+      .field input[type="text"]:focus {
+        outline: none;
+        border-color: #7a8ca0;
+      }
+      .field select:disabled {
+        background: #f5f5f5;
+        color: #aaa;
+      }
 
-.left, .right {
-    flex: 1;
-}
+      .sep {
+        border: none;
+        border-top: 1px solid #eee;
+      }
 
-input {
-    width: 100%;
-    padding: 8px;
-    margin: 8px 0;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-}
+      /* ФШ-06: Алдааны мэдэгдэл */
+      .error-msg {
+        font-size: 11px;
+        color: #dc2626;
+        margin-top: 3px;
+        min-height: 14px;
+      }
+      .field input.has-error {
+        border-color: #dc2626;
+      }
 
-.list {
-    max-height: 300px;
-    overflow-y: auto;
-    border-left: 1px solid #eee;
-    padding-left: 10px;
-}
+      .btn-search {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 6px;
+        background: #4f46e5;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 4px;
+      }
+      .btn-search:hover {
+        background: #4338ca;
+      }
+      .btn-search:disabled {
+        background: #a5b4fc;
+        cursor: not-allowed;
+      }
 
-.item {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px;
-    border-bottom: 1px solid #eee;
-    cursor: pointer;
-}
+      /* ФШ-05: Сонгосон онош харуулах хайрцаг */
+      .selected-box {
+        background: #f0fdf4;
+        border: 1px solid #86efac;
+        border-radius: 8px;
+        padding: 10px 12px;
+      }
+      .selected-box .sel-label {
+        font-size: 11px;
+        color: #15803d;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+      .selected-box .sel-code {
+        font-size: 15px;
+        font-weight: 700;
+        color: #166534;
+      }
+      .selected-box .sel-name {
+        font-size: 12px;
+        color: #15803d;
+        margin-top: 2px;
+        word-break: break-word;
+      }
+      .selected-box.empty {
+        background: #f9fafb;
+        border-color: #e5e7eb;
+      }
+      .selected-box.empty .sel-label {
+        color: #9ca3af;
+      }
+      .selected-box.empty .sel-code,
+      .selected-box.empty .sel-name {
+        color: #d1d5db;
+      }
 
-.item:hover{
-	background:#f0f7ff;
-}
+      /* RIGHT */
+      .right {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+      .right-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 10px;
+      }
+      .right-header h3 {
+        font-size: 15px;
+        color: #1a1d23;
+      }
+      .count-badge {
+        background: #e8ecf0;
+        color: #5f5e5a;
+        font-size: 12px;
+        padding: 2px 10px;
+        border-radius: 20px;
+      }
 
-.code {
-    background: #ddd;
-    padding: 3px 8px;
-    border-radius: 5px;
-    margin-right: 10px;
-}
+      /* ФШ-04: Үр дүнгийн жагсаалт */
+      .list {
+        flex: 1;
+        overflow-y: auto;
+        max-height: 360px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
 
-.detail {
-    font-size: 12px;
-    color: gray;
-    margin-top: 3px;
-}
+      .item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
+        border: 1px solid #dde1e7;
+        border-radius: 8px;
+        cursor: pointer;
+        background: #fff;
+        transition: background 0.15s;
+      }
+      .item:hover {
+        background: #eef2ff;
+        border-color: #c7d2fe;
+      }
+      .item.selected {
+        background: #eef2ff;
+        border-color: #6366f1;
+      }
 
-.btn {
-    padding: 10px 20px;
-    border: none;
-    background: #007bff;
-    color: white;
-    border-radius: 10px;
-    cursor: pointer;
-}
+      .badge {
+        flex-shrink: 0;
+        width: 60px;
+        min-height: 40px;
+        background: #7a8ca0;
+        color: #fff;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        text-align: center;
+        padding: 4px;
+        word-break: break-all;
+        line-height: 1.2;
+      }
+      .item-text {
+        flex: 1;
+        min-width: 0;
+      }
+      .item-name {
+        font-size: 13px;
+        color: #1a1d23;
+      }
+      .item-detail {
+        font-size: 11px;
+        color: #8a919e;
+        margin-top: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .add-btn {
+        flex-shrink: 0;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: none;
+        background: #cbd5e1;
+        color: #334155;
+        font-size: 18px;
+        line-height: 1;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .add-btn:hover {
+        background: #94a3b8;
+      }
 
-.footer {
-    margin-top: 10px;
-    text-align: right;
-}
+      .empty-state {
+        text-align: center;
+        padding: 40px 0;
+        color: #9ca3af;
+        font-size: 13px;
+      }
+      .loading {
+        text-align: center;
+        padding: 20px;
+        color: #9ca3af;
+        font-size: 13px;
+      }
 
-.loading {
-    text-align: center;
-    font-size: 13px;
-    color: gray;
-}
-</style>
-</head>
-
-<body>
-
-<div class="modal">
-<div class="modal-content">
-
-    <!-- LEFT -->
-    <div class="left">
+      .footer {
+        margin-top: 12px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+      }
+      .btn-ok {
+        padding: 9px 24px;
+        border: none;
+        border-radius: 6px;
+        background: #4f46e5;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .btn-ok:hover {
+        background: #4338ca;
+      }
+      .btn-cancel {
+        padding: 9px 24px;
+        border: 1px solid #dde1e7;
+        border-radius: 6px;
+        background: #fff;
+        color: #555;
+        font-size: 13px;
+        cursor: pointer;
+      }
+      .btn-cancel:hover {
+        background: #f5f5f5;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="modal">
+      <!-- LEFT: Шүүлтүүр + хайлт -->
+      <div class="left">
         <h3>Онош хайх</h3>
 
-        <!-- Keyword input -->
-        <input id="searchInput" type="text" placeholder="Оноштой холбоотой түлхүүр үг бичнэ үү...">
+        <!-- ФШ-02: Chapter dropdown -->
+        <div class="field">
+          <label>Ерөнхий төрөл</label>
+          <select id="chapterSel" onchange="onChapterChange()">
+            <option value="">— Бүгд —</option>
+          </select>
+        </div>
 
-        <!-- Result limit input -->
-        <input id="limitInput" type="number" value="5" min="1" max="50">
+        <!-- ФШ-02: Category dropdown -->
+        <div class="field">
+          <label>Төрөл</label>
+          <select id="categorySel" disabled onchange="onCategoryChange()">
+            <option value="">— Бүгд —</option>
+          </select>
+        </div>
 
-        <p style="font-size:12px; color:gray;">
-            Жишээ: балнад, ижбалнад, урвах
-        </p>
-        
-        <button class="btn" onclick="search()">Хайх</button>
-    </div>
+        <!-- ФШ-02: Subcategory dropdown -->
+        <div class="field">
+          <label>Дэд төрөл</label>
+          <select id="subSel" disabled onchange="doSearch()">
+            <option value="">— Бүгд —</option>
+          </select>
+        </div>
 
-    <!-- RIGHT -->
-    <div class="right">
-        <h3>Хайлтын илэрц: <span id="count">0</span></h3>
+        <hr class="sep" />
 
-        <!-- Result list -->
-        <div id="results" class="list"></div>
+        <!-- ФШ-02: Түлхүүр үгээр хайх + ФШ-06: Validation -->
+        <div class="field">
+          <label>Оношны нэр эсвэл код</label>
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Жишээ: гэдэсний, A08..."
+            oninput="onInputChange()"
+            onkeydown="if (e.key === 'Enter') doSearch();"
+          />
+          <div class="error-msg" id="inputError"></div>
+        </div>
 
-        <!-- Loading -->
-        <div id="loading" class="loading" style="display:none;">
-            Хайж байна...
+        <button class="btn-search" onclick="doSearch()" id="searchBtn">
+          Хайх
+        </button>
+
+        <hr class="sep" />
+
+        <!-- ФШ-05: Сонгосон онош -->
+        <div class="selected-box empty" id="selectedBox">
+          <div class="sel-label">Сонгосон онош</div>
+          <div class="sel-code" id="selCode">— код —</div>
+          <div class="sel-name" id="selName">Сонгогдоогүй байна</div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Үр дүн -->
+      <div class="right">
+        <div class="right-header">
+          <h3>Хайлтын илэрц</h3>
+          <span class="count-badge" id="countBadge">0</span>
+        </div>
+
+        <div class="list" id="results">
+          <div class="empty-state">
+            Хайлт хийхийн тулд түлхүүр үг оруулна уу
+          </div>
+        </div>
+        <div id="loading" class="loading" style="display: none">
+          Хайж байна...
         </div>
 
         <div class="footer">
-            <button class="btn" style="background:gray;" onclick="closeModal()">Болих</button>
+          <!-- ФШ-03: Сонгох товч -->
+          <button
+            class="btn-ok"
+            id="confirmBtn"
+            onclick="confirmSelect()"
+            disabled
+          >
+            Сонгох
+          </button>
+          <button class="btn-cancel" onclick="closeModal()">Болих</button>
         </div>
+      </div>
     </div>
 
-</div>
-</div>
+    <script>
+      const API = window.location.origin + "/api";
+      let selectedItem = null;
 
-<script>
-//config
-const API = window.location.origin + "/api";
+      // Аппликэйшн эхлэхэд chapter жагсаалт татах
+      window.onload = async () => {
+        try {
+          const res = await fetch(API + "/diagnosis/chapters");
+          const chapters = await res.json();
+          const sel = document.getElementById("chapterSel");
+          chapters.forEach((ch) => {
+            const opt = document.createElement("option");
+            // "I Халдварт..." → code нь "I", value-д бүтнийг хадгална
+            opt.value = ch.split(" ")[0]; // chapter code
+            opt.textContent = ch;
+            sel.appendChild(opt);
+          });
+        } catch (e) {
+          console.error("Chapter татахад алдаа:", e);
+        }
+      };
 
-const input = document.getElementById("searchInput");
-const limitInput = document.getElementById("limitInput");
-const resultsBox = document.getElementById("results");
-const count = document.getElementById("count");
-const loading = document.getElementById("loading");
+      // ФШ-02: Chapter сонгоход category татах
+      async function onChapterChange() {
+        const code = document.getElementById("chapterSel").value;
+        const catSel = document.getElementById("categorySel");
+        const subSel = document.getElementById("subSel");
 
-function escapeHTML(str) {
-    return str.replace(/[&<>"']/g, tag => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;'
-    }[tag]));
-}
+        catSel.innerHTML = '<option value="">— Бүгд —</option>';
+        subSel.innerHTML = '<option value="">— Бүгд —</option>';
+        catSel.disabled = true;
+        subSel.disabled = true;
 
-async function search() {
-    const query = input.value.trim();
-    const limit = parseInt(limitInput.value) || 10;
+        if (code) {
+          try {
+            const res = await fetch(
+              API + "/diagnosis/categories?chapter=" + encodeURIComponent(code),
+            );
+            const cats = await res.json();
+            cats.forEach((c) => {
+              const opt = document.createElement("option");
+              // "A00|A00-A09 Гэдэсний..." → range = "A00-A09"
+              const parts = c.split("|");
+              opt.value = parts.length > 1 ? parts[1].split(" ")[0] : c; // range
+              opt.textContent = parts.length > 1 ? parts[1] : c;
+              catSel.appendChild(opt);
+            });
+            catSel.disabled = cats.length === 0;
+          } catch (e) {
+            console.error(e);
+          }
+        }
+        doSearch();
+      }
 
-    // Хоосон бол reset
-    if (!query) {
-        resultsBox.innerHTML = "";
-        count.textContent = 0;
-        return;
-    }
+      // ФШ-02: Category сонгоход subcategory татах
+      async function onCategoryChange() {
+        const range = document.getElementById("categorySel").value;
+        const subSel = document.getElementById("subSel");
 
-    // Limit validation
-    if (limit < 1 || limit > 50) {
-        alert("Limit 1-50 хооронд байна");
-        return;
-    }
+        subSel.innerHTML = '<option value="">— Бүгд —</option>';
+        subSel.disabled = true;
 
-    loading.style.display = "block";
-    resultsBox.innerHTML = "";
+        if (range) {
+          try {
+            const res = await fetch(
+              API +
+                "/diagnosis/subcategories?category=" +
+                encodeURIComponent(range),
+            );
+            const subs = await res.json();
+            subs.forEach((s) => {
+              const opt = document.createElement("option");
+              opt.value = s.split(" ")[0]; // code
+              opt.textContent = s;
+              subSel.appendChild(opt);
+            });
+            subSel.disabled = subs.length === 0;
+          } catch (e) {
+            console.error(e);
+          }
+        }
+        doSearch();
+      }
 
-    try {
-        const res = await fetch(API + "/diagnosis/suggest", {
-            method: "POST",
-            headers: {"Content-Type":"application/json"},
-            body: JSON.stringify({
-                diagnosis: query,
-                resultLimit: limit
-            })
-        });
+      //  ФШ-06: Хайлтын талбарын validation
+      function onInputChange() {
+        validateInput();
+        doSearch();
+      }
 
-        const data = await res.json();
+      function validateInput() {
+        const val = document.getElementById("searchInput").value.trim();
+        const errEl = document.getElementById("inputError");
+        const inputEl = document.getElementById("searchInput");
 
-        // Илэрц байхгүй
-        if (!data.suggestions || data.suggestions.length === 0) {
-            resultsBox.innerHTML = "<p>Илэрц олдсонгүй</p>";
-            count.textContent = 0;
-            return;
+        if (val.length === 0) {
+          errEl.textContent = "";
+          inputEl.classList.remove("has-error");
+          return true;
+        }
+        if (val.length === 1) {
+          errEl.textContent =
+            "Хайлтын үг хэтэрхий богино - 2-с дээш тэмдэгт оруулна уу";
+          inputEl.classList.add("has-error");
+          return false;
+        }
+        if (val.length > 100) {
+          errEl.textContent = "Хайлтын үг хэтэрхий урт - 100-с доош тэмдэгт";
+          inputEl.classList.add("has-error");
+          return false;
+        }
+        errEl.textContent = "";
+        inputEl.classList.remove("has-error");
+        return true;
+      }
+
+      //  ФШ-01: Хайлт
+      let debounceTimer = null;
+      function doSearch() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(_doSearch, 300);
+      }
+
+      async function _doSearch() {
+        const query = document.getElementById("searchInput").value.trim();
+        const chapter = document.getElementById("chapterSel").value;
+        const category = document.getElementById("categorySel").value;
+        const sub = document.getElementById("subSel").value;
+
+        // Validation
+        if (!validateInput()) return;
+
+        // query болон combo хоёулаа хоосон бол reset
+        if (!query && !chapter && !category && !sub) {
+          renderEmpty("Хайлт хийхийн тулд үг оруулна уу");
+          return;
         }
 
-        // Count update
-        count.textContent = data.suggestions.length;
+        // Хайлтын үг 2-с бага байвал combo query ашиглана
+        const searchTerm =
+          query.length >= 2
+            ? query
+            : sub
+              ? sub
+              : category
+                ? category
+                : chapter
+                  ? chapter
+                  : "";
 
-	// render results
-        resultsBox.innerHTML = data.suggestions.map(c => `
-            <div class="item" onclick="select('${c.code}', '${c.name}')">
-                <div>
-                    <span class="code">${escapeHTML(c.code)}</span>
-                    ${escapeHTML(c.name)}
+        if (!searchTerm) {
+          renderEmpty("Хайлт хийхийн тулд үг оруулна уу");
+          return;
+        }
 
-                    <!-- DETAIL (optional) -->
-                    ${c.detail ? `<div class="detail">${escapeHTML(c.detail)}</div>` : ""}
-                </div>
-            </div>
-        `).join("");
+        showLoading(true);
 
-    } catch (err) {
-        resultsBox.innerHTML = "Алдаа гарлаа";
-    } finally {
-        loading.style.display = "none";
-    }
-}
+        try {
+          const res = await fetch(API + "/diagnosis/suggest", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ diagnosis: searchTerm, resultLimit: 50 }),
+          });
 
-function select(code, name) {
-    document.querySelectorAll(".item").forEach(i => i.style.background = "");
-    event.currentTarget.style.background = "#d0e7ff";
+          const data = await res.json();
 
-    alert(`Сонгосон: ${code} - ${name}`);
- 	// TODO:
-    // эндээс parent form руу дамжуулж болно
-}
+          // ФШ-06: Server-side алдаа
+          if (!data.success) {
+            renderError(data.message || "Хайлт амжилтгүй боллоо");
+            return;
+          }
 
-input.addEventListener("keydown", e => {
-    if (e.key === "Enter") search();
-});  
+          // Combo filter
+          let results = data.suggestions || [];
+          if (chapter)
+            results = results.filter((r) => r.chapterCode === chapter);
+          if (category)
+            results = results.filter((r) => r.categoryRange === category);
+          if (sub) results = results.filter((r) => r.subcategoryCode === sub);
 
-function closeModal() {
-    document.querySelector(".modal").style.display = "none";
-}
-</script>
+          renderResults(results);
+        } catch (e) {
+          renderError("Сервертэй холбогдоход алдаа гарлаа");
+        } finally {
+          showLoading(false);
+        }
+      }
 
-</body>
+      //  ФШ-04: Үр дүн жагсаалт хэлбэрээр харуулах
+      function renderResults(items) {
+        const box = document.getElementById("results");
+        document.getElementById("countBadge").textContent = items.length;
+
+        if (items.length === 0) {
+          box.innerHTML =
+            '<div class="empty-state">Тохирох онош олдсонгүй</div>';
+          return;
+        }
+
+        box.innerHTML = items
+          .map(
+            (c, i) => `
+    <div class="item" id="item-${i}" onclick="selectItem(${i}, '${esc(c.code)}', '${esc(c.name)}')">
+      <div class="badge">${esc(c.code)}</div>
+      <div class="item-text">
+        <div class="item-name">${esc(c.name)}</div>
+        ${c.detail ? `<div class="item-detail">${esc(c.detail)}</div>` : ""}
+      </div>
+      <button class="add-btn" title="Сонгох">+</button>
+    </div>
+  `,
+          )
+          .join("");
+
+        // Өмнө сонгосон байвал highlight хадгална
+        if (selectedItem) highlightSelected();
+      }
+
+      function renderEmpty(msg) {
+        document.getElementById("results").innerHTML =
+          `<div class="empty-state">${msg}</div>`;
+        document.getElementById("countBadge").textContent = "0";
+      }
+
+      function renderError(msg) {
+        document.getElementById("results").innerHTML =
+          `<div class="empty-state" style="color:#dc2626">${msg}</div>`;
+        document.getElementById("countBadge").textContent = "0";
+      }
+
+      function showLoading(show) {
+        document.getElementById("loading").style.display = show
+          ? "block"
+          : "none";
+        document.getElementById("results").style.display = show
+          ? "none"
+          : "flex";
+        document.getElementById("searchBtn").disabled = show;
+      }
+
+      //  ФШ-03, ФШ-05: Онош сонгох
+      function selectItem(idx, code, name) {
+        selectedItem = { idx, code, name };
+
+        // Highlight
+        document
+          .querySelectorAll(".item")
+          .forEach((el) => el.classList.remove("selected"));
+        const el = document.getElementById("item-" + idx);
+        if (el) el.classList.add("selected");
+
+        // ФШ-05: Сонгосон оношны код болон нэрийг автоматаар бөглөх
+        const box = document.getElementById("selectedBox");
+        box.classList.remove("empty");
+        document.getElementById("selCode").textContent = code;
+        document.getElementById("selName").textContent = name;
+
+        // Confirm товч идэвхжүүлэх
+        document.getElementById("confirmBtn").disabled = false;
+      }
+
+      function highlightSelected() {
+        if (!selectedItem) return;
+        document.querySelectorAll(".item").forEach((el, i) => {
+          el.classList.toggle("selected", i === selectedItem.idx);
+        });
+      }
+
+      // ФШ-03: Сонгох товч дарахад
+      function confirmSelect() {
+        if (!selectedItem) return;
+        // Parent window руу дамжуулах
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage(
+            {
+              type: "ICD10_SELECTED",
+              code: selectedItem.code,
+              name: selectedItem.name,
+            },
+            "*",
+          );
+          window.close();
+        } else {
+          // Standalone горимд alert-ийн оронд clipboard-д хуулна
+          navigator.clipboard
+            ?.writeText(selectedItem.code + " - " + selectedItem.name)
+            .then(() =>
+              alert(
+                "Хуулагдлаа: " + selectedItem.code + " - " + selectedItem.name,
+              ),
+            );
+        }
+      }
+
+      function closeModal() {
+        document.querySelector(".modal").style.display = "none";
+      }
+
+      function esc(str) {
+        if (!str) return "";
+        return String(str).replace(
+          /[&<>"']/g,
+          (t) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[t],
+        );
+      }
+    </script>
+  </body>
 </html>

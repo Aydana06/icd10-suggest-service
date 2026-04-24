@@ -739,14 +739,6 @@ public class DiagnosisSearchUI {
         });
     }
 
-//    /** Товчлуур дээр cursor хүрэх үед өнгийг солих hover эффект. */
-//    private MouseAdapter hoverEffect(AbstractButton btn, Color normal, Color hover) {
-//        return new MouseAdapter() {
-//            public void mouseEntered(MouseEvent e) { btn.setBackground(hover);  }
-//            public void mouseExited (MouseEvent e) { btn.setBackground(normal); }
-//        };
-//    }
-    
     private MouseAdapter colorHover(AbstractButton btn,
             Color normBg, Color hovBg,
             Color normFg, Color hovFg) {
@@ -758,6 +750,5 @@ public class DiagnosisSearchUI {
     			btn.setBackground(normBg); btn.setForeground(normFg); btn.repaint();
     		}
     	};
-}
-
+    }
 }
