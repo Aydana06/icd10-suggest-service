@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mn.num.hospital.icd10_service.dto.DiagnosisRequest;
 import mn.num.hospital.icd10_service.dto.DiagnosisResponse;
+import org.springframework.beans.factory.annotation.Value;
 import mn.num.hospital.icd10_service.service.DiagnosisService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,17 +22,31 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/diagnosis")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "${app.cors.allowed-origins}")
 @RequiredArgsConstructor
 @Slf4j
 public class DiagnosisController {
 
     private static final int DEFAULT_LIMIT = 50;
 
+    @Value("${app.admin.api-key}")
+    private String adminApiKey;
     private final DiagnosisService diagnosisService;
 
+    /**
+     * Admin API-ийн үндсэн түлхүүр
+     * POST /api/diagnosis/init
+     */
     @PostMapping("/init")
-    public ResponseEntity<String> initData() {
+    public ResponseEntity<String> initData(
+            @RequestHeader(value = "X-Admin-Api-Key", required = false) String providedKey) {
+
+        if (adminApiKey == null || adminApiKey.isBlank()
+                || !adminApiKey.equals(providedKey)) {
+            log.warn("Зөвшөөрөлгүй /diagnosis/init хандалтын оролдлого");
+            return ResponseEntity.status(401).body("Зөвшөөрөлгүй хандалт");
+        }
+
         return ResponseEntity.ok(diagnosisService.seedFromExternalAPI());
     }
 
